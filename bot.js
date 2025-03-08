@@ -10,6 +10,8 @@ const time = parseInt(process.argv[3].split("=")[1]);
 
 const hours = parseInt(process.argv[4].split("=")[1]);
 
+const isInstantBooking = process.argv[5] === "--instant";
+
 let bookingDate = "";
 
 const bookingPlaceAndTimeList = [
@@ -169,7 +171,7 @@ function checkBookingStatus(html) {
         }
     }
 
-    console.log("⚠ 無法解析 Y 值，可能是未預期的 HTML 結構");
+    console.log("⚠️ 無法解析 Y 值，可能是未預期的 HTML 結構，預約失敗");
 
     return false;
 }
@@ -291,12 +293,6 @@ function run() {
 
     const delay = targetTime - now;
 
-    console.log(`選擇的預約時間: ${time} 點`);
-
-    console.log(`預約時段長度: ${hours} 小時`);
-
-    console.log(`預約的時間範圍是: ${time} 點到 ${time + hours} 點`);
-
     if (!sessionId) {
         console.log("❌ 未提供 sessionId");
 
@@ -315,17 +311,33 @@ function run() {
         return;
     }
 
-    console.log(
-      `⏳ 等待至 ${targetTime.toLocaleDateString("zh-TW")} ${targetTime.toLocaleTimeString()} 後嘗試預訂球場...`
-    );
-
-    setTimeout(() => {
+    if (isInstantBooking) {
         setBookingDate();
 
         console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
         proceedBooking();
-    }, delay);
+    } else {
+        console.log(`選擇的預約時間: ${time} 點`);
+
+        console.log(`預約時段長度: ${hours} 小時`);
+
+        console.log(`預約的時間範圍是: ${time} 點到 ${time + hours} 點`);
+
+        console.log(
+          `⏳ 等待至 ${targetTime.toLocaleDateString(
+            "zh-TW"
+          )} ${targetTime.toLocaleTimeString()} 後嘗試預訂球場...`
+        );
+
+        setTimeout(() => {
+          setBookingDate();
+
+          console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
+
+          proceedBooking();
+        }, delay);
+    }
 }
 
 run();

@@ -22,7 +22,7 @@ This is a Node.js script designed to automate the booking of courts on the speci
 To run the script, use the following command:
 
 ```bash
-node bot.js --token=<SESSION_ID> --time=<START_TIME> --hours=<DURATION>
+node bot.js --token=<SESSION_ID> --time=<START_TIME> --hours=<DURATION> [--instant]
 ```
 
 ### Command-line Arguments
@@ -30,6 +30,7 @@ node bot.js --token=<SESSION_ID> --time=<START_TIME> --hours=<DURATION>
 - `--token`: The session ID for the booking website. This is required for authentication.
 - `--time`: The starting hour for the booking (24-hour format). For example, `16` for 4 PM.
 - `--hours`: The duration of the booking in hours. For example, `2` for a 2-hour booking.
+- `--instant`: (Optional) If provided, the script will attempt to book immediately without waiting for the specified time.
 
 ### Example
 
@@ -37,6 +38,12 @@ To book a court starting at 4 PM for 2 hours, use:
 
 ```bash
 node bot.js --token=YOUR_SESSION_ID --time=16 --hours=2
+```
+
+To book immediately, use:
+
+```bash
+node bot.js --token=YOUR_SESSION_ID --time=16 --hours=2 --instant
 ```
 
 ## How It Works
