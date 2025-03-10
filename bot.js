@@ -347,7 +347,7 @@ function run() {
         setTimeout(() => {
           console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
-        //   proceedBooking();
+          proceedBooking();
         }, delay);
     }
 }
