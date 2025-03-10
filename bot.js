@@ -277,6 +277,8 @@ async function proceedBooking(currentBookingPlaceAndTimeIndex = 0) {
 
     console.log("❌ 取消預約失敗！");
 
+    proceedBooking(currentBookingPlaceAndTimeIndex + 1);
+
     return;
 }
 
