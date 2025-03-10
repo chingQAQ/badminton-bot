@@ -28,22 +28,30 @@ node bot.js --token=<SESSION_ID> --time=<START_TIME> --hours=<DURATION> [--insta
 ### Command-line Arguments
 
 - `--token`: The session ID for the booking website. This is required for authentication.
+- `--day`: The day of the booking. For example, `1` for the first day.
 - `--time`: The starting hour for the booking (24-hour format). For example, `16` for 4 PM.
 - `--hours`: The duration of the booking in hours. For example, `2` for a 2-hour booking.
 - `--instant`: (Optional) If provided, the script will attempt to book immediately without waiting for the specified time.
+- `--wait-to`: (Optional) If provided, the script will wait for the specified time before booking.
 
 ### Example
 
 To book a court starting at 4 PM for 2 hours, use:
 
 ```bash
-node bot.js --token=YOUR_SESSION_ID --time=16 --hours=2
+node bot.js --token=YOUR_SESSION_ID --day=1 --time=16 --hours=2
 ```
 
 To book immediately, use:
 
 ```bash
-node bot.js --token=YOUR_SESSION_ID --time=16 --hours=2 --instant
+node bot.js --token=YOUR_SESSION_ID --day=1 --time=16 --hours=2 --instant
+```
+
+To book at a specific time, use:
+
+```bash
+node bot.js --token=YOUR_SESSION_ID --day=1 --time=16 --hours=2 --wait-to=11:59:59:999
 ```
 
 ## How It Works

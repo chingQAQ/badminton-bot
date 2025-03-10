@@ -6,11 +6,13 @@ const cheerio = require("cheerio");
 
 const sessionId = process.argv[2].split("=")[1];
 
-const time = parseInt(process.argv[3].split("=")[1]);
+const day = parseInt(process.argv[3].split("=")[1]);
 
-const hours = parseInt(process.argv[4].split("=")[1]);
+const time = parseInt(process.argv[4].split("=")[1]);
 
-const isInstantBooking = process.argv[5] === "--instant";
+const hours = parseInt(process.argv[5].split("=")[1]);
+
+const isInstantBooking = process.argv[6] === "--instant";
 
 let bookingDate = "";
 
@@ -147,8 +149,6 @@ function setBookingDate() {
     const year = now.getFullYear();
 
     const month = String(now.getMonth() + 1).padStart(2, "0");
-
-    const day = String(now.getDate()).padStart(2, "0");
 
     bookingDate = `${year}/${month}/${day}`;
 }
@@ -287,7 +287,17 @@ function run() {
 
     const targetTime = new Date();
 
-    targetTime.setHours(0, 0, 0, 0);
+    const isWait = process.argv[6]?.split("=")[0] === "--wait-to";
+
+    if (isWait) {
+        const [hours = 0, minutes = 0, seconds = 0, milliseconds = 0] = process.argv[6]
+          .split("=")[1]
+          .split(":");
+
+        targetTime.setHours(hours, minutes, seconds, milliseconds);
+    } else {
+        targetTime.setHours(0, 0, 0, 0);
+    }
 
     if (now > targetTime) {
       targetTime.setDate(targetTime.getDate() + 1);
@@ -313,13 +323,15 @@ function run() {
         return;
     }
 
-    if (isInstantBooking) {
-        setBookingDate();
+    setBookingDate();
 
+    if (isInstantBooking) {
         console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
         proceedBooking();
     } else {
+        console.log(`🚗 準備預訂 ${bookingDate} 的球場`);
+
         console.log(`選擇的預約時間: ${time} 點`);
 
         console.log(`預約時段長度: ${hours} 小時`);
@@ -329,17 +341,27 @@ function run() {
         console.log(
           `⏳ 等待至 ${targetTime.toLocaleDateString(
             "zh-TW"
-          )} ${targetTime.toLocaleTimeString()} 後嘗試預訂球場...`
+          )} ${targetTime.toLocaleTimeString()} ${targetTime.getMilliseconds()} 毫秒後嘗試預訂球場...`
         );
 
         setTimeout(() => {
-          setBookingDate();
-
           console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
-          proceedBooking();
+        //   proceedBooking();
         }, delay);
     }
 }
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
+}
+
+shuffleArray(bookingPlaceAndTimeList);
 
 run();
