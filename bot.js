@@ -16,7 +16,34 @@ const isInstantBooking = process.argv[6] === "--instant";
 
 let bookingDate = "";
 
-const bookingPlaceAndTimeList = [
+const nonSessionPlaceList = [
+    [
+    {
+      placeName: "5-8",
+      place: "1165",
+      time: time,
+    },
+    {
+      placeName: "5-8",
+      place: "1165",
+      time: time + hours - 1,
+    },
+  ],
+  [
+    {
+      placeName: "5-9",
+      place: "1166",
+      time: time,
+    },
+    {
+      placeName: "5-9",
+      place: "1166",
+      time: time + hours - 1,
+    },
+  ],
+];
+
+const sessionPlaceList = [
   [
     {
       placeName: "5-1",
@@ -98,30 +125,6 @@ const bookingPlaceAndTimeList = [
     {
       placeName: "5-7",
       place: "1164",
-      time: time + hours - 1,
-    },
-  ],
-  [
-    {
-      placeName: "5-8",
-      place: "1165",
-      time: time,
-    },
-    {
-      placeName: "5-8",
-      place: "1165",
-      time: time + hours - 1,
-    },
-  ],
-  [
-    {
-      placeName: "5-9",
-      place: "1166",
-      time: time,
-    },
-    {
-      placeName: "5-9",
-      place: "1166",
       time: time + hours - 1,
     },
   ],
@@ -170,8 +173,6 @@ function checkBookingStatus(html) {
             return true;
         }
     }
-
-    console.log("⚠️ 無法解析 Y 值，可能是未預期的 HTML 結構，預約失敗");
 
     return false;
 }
@@ -245,22 +246,27 @@ async function getOrderListAndCancel() {
     }
 }
 
-async function proceedBooking(currentBookingPlaceAndTimeIndex = 0) {
-    const pareOfBookingPlaceAndTime =
-        bookingPlaceAndTimeList[currentBookingPlaceAndTimeIndex];
-
-    if (!pareOfBookingPlaceAndTime) {
-        console.log("❌ 所有預約都失敗！");
-
-        return;
-    }
-
+async function proceedBooking(pareOfBookingPlaceAndTime) {
     const result1 = await bookCourt(pareOfBookingPlaceAndTime[0]);
 
     const result2 = await bookCourt(pareOfBookingPlaceAndTime[1]);
 
     if (result1 && result2) {
-        console.log(`🎉 ${pareOfBookingPlaceAndTime[0].placeName} 預約成功！`);
+        console.log(`🎉 場地 ${pareOfBookingPlaceAndTime[0].placeName} 預約成功！`);
+
+        return;
+    }
+
+    if (!result1 && !result2) {
+        console.log(
+          `❌ 場地 ${pareOfBookingPlaceAndTime[0].placeName} 預約失敗！`
+        );
+
+        return;
+    }
+
+    if (result1 && !result2 || !result1 && result2) {
+        await getOrderListAndCancel();
 
         return;
     }
@@ -270,17 +276,25 @@ async function proceedBooking(currentBookingPlaceAndTimeIndex = 0) {
     if (cancelResult) {
         console.log("已取消預約！");
 
-        proceedBooking(currentBookingPlaceAndTimeIndex + 1);
-
         return;
     }
 
     console.log("❌ 取消預約失敗！");
 
-    proceedBooking(currentBookingPlaceAndTimeIndex + 1);
-
     return;
 }
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return sessionPlaceList;
+}
+
+const bookingPlaceAndTimeList = [...nonSessionPlaceList, ...shuffleArray(sessionPlaceList)];
 
 function run() {
     const now = new Date();
@@ -328,7 +342,7 @@ function run() {
     if (isInstantBooking) {
         console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
-        proceedBooking();
+        bookingPlaceAndTimeList.forEach(proceedBooking);
     } else {
         console.log(`🚗 準備預訂 ${bookingDate} 的球場`);
 
@@ -347,21 +361,9 @@ function run() {
         setTimeout(() => {
           console.log(`🚗 開始預訂 ${bookingDate} 的球場`);
 
-          proceedBooking();
+          bookingPlaceAndTimeList.forEach(proceedBooking);
         }, delay);
     }
 }
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-
-  return array;
-}
-
-shuffleArray(bookingPlaceAndTimeList);
 
 run();
